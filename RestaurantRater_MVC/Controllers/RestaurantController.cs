@@ -1,9 +1,6 @@
 ﻿using RestaurantRater_MVC.Models;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 
 namespace RestaurantRater_MVC.Controllers {
@@ -22,7 +19,7 @@ namespace RestaurantRater_MVC.Controllers {
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "RestaurantID,Name,Address,Description,Rating")] Restaurant restaurant) {
+        public ActionResult Create([Bind(Include = "RestaurantID,Name,Address,Rating")] Restaurant restaurant) {
             if (ModelState.IsValid) {
                 db.Restaurants.Add(restaurant);
                 db.SaveChanges();
@@ -61,6 +58,32 @@ namespace RestaurantRater_MVC.Controllers {
             }
 
             base.Dispose(disposing);
+        }
+
+        public ActionResult Edit(int? id) {
+            if (id == null) {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            Restaurant restaurant = db.Restaurants.Find(id);
+
+            if (restaurant == null) {
+                return HttpNotFound();
+            }
+
+            return View(restaurant);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include ="RestaurantID,Name,Address,Rating")] Restaurant restaurant) {
+            if (ModelState.IsValid) {
+                db.Entry(restaurant).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            return View(restaurant);
         }
     }
 }
